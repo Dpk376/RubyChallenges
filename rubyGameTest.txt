@@ -1,0 +1,49 @@
+require 'minitest/autorun'
+
+class TestRockPaperScissors < Minitest::Test
+  def setup
+    @game = RockPaperScissors.new
+  end
+
+  def test_valid_choices
+    assert_equal true, @game.send(:valid_choice?, 'rock')
+    assert_equal true, @game.send(:valid_choice?, 'paper')
+    assert_equal true, @game.send(:valid_choice?, 'scissors')
+    assert_equal false, @game.send(:valid_choice?, 'invalid_choice')
+  end
+
+  def test_determine_winner
+    assert_output(/It's a tie!/) { @game.send(:determine_winner, 'rock', 'rock') }
+    assert_output(/Congratulations! You win!/) { @game.send(:determine_winner, 'rock', 'scissors') }
+    assert_output(/Sorry, you lose./) { @game.send(:determine_winner, 'rock', 'paper') }
+  end
+
+  def test_display_scores
+    @game.instance_variable_set(:@player_score, 2)
+    @game.instance_variable_set(:@computer_score, 1)
+
+    assert_output(/Scores:\nPlayer: 2 \| Computer: 1/) { @game.send(:display_scores) }
+  end
+
+  def test_play_again
+    assert_equal true, @game.send(:play_again?, StringIO.new("yes\n"))
+    assert_equal false, @game.send(:play_again?, StringIO.new("no\n"))
+  end
+
+  def test_get_computer_choice
+    computer_choice = @game.send(:get_computer_choice)
+    assert_includes RockPaperScissors::CHOICES, computer_choice
+  end
+
+  def test_valid_choices_for_player_input
+    input = 'rock'
+    assert_output(/Enter your choice/) { @game.send(:valid_choices_for_player_input?, input) }
+
+    input = 'invalid_choice'
+    assert_output(/Invalid choice/) { @game.send(:valid_choices_for_player_input?, input) }
+  end
+
+  def test_game_play_round
+    assert_output(/Welcome to Rock, Paper, Scissors Game!/) { @game.play }
+  end
+end
